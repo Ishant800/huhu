@@ -1,0 +1,28 @@
+name: Node.js CI Pipeline
+
+# Trigger the pipeline every time someone pushes to the main branch
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-and-test:
+    # Use a cloud-hosted Ubuntu Linux environment
+    runs-on: ubuntu-latest
+
+    steps:
+    # Step 1: Download your code onto the Linux machine
+    - name: Check out repository code
+      uses: actions/checkout@v4
+
+    # Step 2: Install Node.js on the machine
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+
+    # Step 3: Run the automated test script using the Linux command line
+    - name: Run automated tests
+      run: node test_app.js
