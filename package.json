@@ -1,0 +1,9 @@
+{
+  "name": "traditional-cicd-demo",
+  "version": "1.0.0",
+  "description": "A basic node application without docker",
+  "main": "app.js",
+  "scripts": {
+    "test": "node test_app.js"
+  }
+}
