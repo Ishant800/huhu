@@ -1,28 +1,58 @@
-name: Node.js CI Pipeline
+name: Node.js Traditional CD Pipeline
 
-# Trigger the pipeline every time someone pushes to the main branch
 on:
   push:
     branches: [ main ]
-  pull_request:
-    branches: [ main ]
 
 jobs:
+  # ==========================================
+  # PHASE 1: CONTINUOUS INTEGRATION (CI)
+  # ==========================================
   build-and-test:
-    # Use a cloud-hosted Ubuntu Linux environment
     runs-on: ubuntu-latest
-
     steps:
-    # Step 1: Download your code onto the Linux machine
     - name: Check out repository code
       uses: actions/checkout@v4
 
-    # Step 2: Install Node.js on the machine
     - name: Set up Node.js
       uses: actions/setup-node@v4
       with:
         node-version: '20'
 
-    # Step 3: Run the automated test script using the Linux command line
     - name: Run automated tests
       run: node test_app.js
+
+    # Package the raw application files into a zip archive
+    - name: Build Production Artifact
+      run: |
+        zip -r deploy-package.zip app.js package.json
+        echo "Application packaged successfully into a production-ready zip!"
+
+    # Save the zip file so the deployment phase can use it
+    - name: Upload Artifact for Deployment
+      uses: actions/upload-artifact@v4
+      with:
+        name: production-build
+        path: deploy-package.zip
+
+  # ==========================================
+  # PHASE 2: CONTINUOUS DELIVERY (CD)
+  # ==========================================
+  deploy:
+    needs: build-and-test # ❌ Only run this if the tests above pass successfully!
+    runs-on: ubuntu-latest
+    steps:
+    - name: Download Production Artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: production-build
+
+    # Simulating the deployment steps over SSH/SCP to a raw server machine
+    - name: Simulate Production Server Deployment
+      run: |
+        echo "Connecting to production server via SSH..."
+        echo "Transferring 'deploy-package.zip' using SCP protocol..."
+        echo "Extracting files to target directory: /var/www/html/my-app"
+        echo "Running: npm install --production"
+        echo "Running: pm2 restart app.js"
+        echo "🎉 Deployment successful without Docker!"
